@@ -14,19 +14,12 @@ def text_to_code(text):
                 code += "400"
             else:
                 grid = 4
-                row = (int(char) - 1) % 3
-                col = (int(char) - 1) // 3
+                row = (int(char) - 1) % 3  # Adjust the calculation for row
+                col = (int(char) - 1) // 3   # Adjust the calculation for column
                 code += f"{grid}{row + 1}{col + 1}"
+
         elif char == ' ':
             code += "333"  # SPACE is represented by (3rd grid, 3rd row, 3rd column)
-        # else:
-        #     # Special characters in grids 5, 6, and 7
-        #     special_chars = '@#$%&()!"\'?;:,.\/<>=_-+*^[]{}~'
-        #     if char in special_chars:
-        #         grid = special_chars.index(char) // 9 + 5
-        #         row = special_chars.index(char) % 3
-        #         col = special_chars.index(char) // 3 % 3
-        #         code += f"{grid}{row + 1}{col + 1}"
 
     return code
 
@@ -45,11 +38,8 @@ def code_to_text(code):
             col = int(code[2])
 
             if grid == 4:
-                num = (col - 1) * 3 + row + 1
+                num = (col - 1) * 3 + row 
                 text += str(num)
-            elif grid >= 5 and grid <= 7:
-                special_chars = '@#$%&()!"\'?;:,.\/<>=_-+*^[]{}~'
-                text += special_chars[(grid - 5) * 9 + col - 1 + row * 3]
             else:
                 char_num = (grid - 1) * 9 + (col - 1) * 3 + (row - 1)  # Swap row and column
                 if char_num < 26:
