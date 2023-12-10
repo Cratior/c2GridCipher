@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Code Converter</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding-left: 20px; /* Add padding to the left for better alignment */
+            background-color: var(--primary-bg); /* Use variable for background color */
+            color: var(--primary-text); /* Use variable for text color */
+            transition: background-color 0.3s, color 0.3s; /* Smooth transition for dark mode */
+            border-radius: 10px; /* Rounded corners for the body */
+            overflow-y: hidden;
+        }
+    
+        .container {
+            display: flex;
+            align-items: flex-start;
+            margin-right: 80px;
+            flex-direction: column;
+            background-color: var(--secondary-bg); /* Use variable for background color */
+            transition: background-color 0.3s; /* Smooth transition for dark mode */
+            border-radius: 10px; /* Rounded corners for the container */
+            padding: 20px; /* Add padding for a more spacious look */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+        }
+    
+        textarea {
+            width: 450px;
+            max-height: 70%; /* Set maximum height */
+            height: auto; /* Allow height to adjust based on content */
+            padding: 8px;
+            resize: vertical; /* Allow vertical resizing */
+            white-space: pre-wrap;
+            overflow-y: auto; /* Enable vertical scrolling */
+            border: 1px solid #ccc; /* Light border */
+            background-color: #fff; /* White background */
+            color: #333; /* Dark text color */
+            border-radius: 8px; /* Rounded corners for the textarea */
+            margin-bottom: 10px; /* Add margin at the bottom */
+        }
+    
+        .grids-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2px; /* Adjust the gap between grids sets */
+            max-width: 200px;
+            margin-left: auto;
+            margin-right: 150px;
+            
+            border-radius: 10px; /* Rounded corners for the grids-container */
+            padding: 124px; /* Add padding for a more spacious look */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+        }
+    
+        .main-grid-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+            margin-bottom: 20px; /* Add margin for separation between grids sets */
+        }
+    
+        .main-grids {
+            display: flex;
+            gap: 20px; /* Adjust the gap between the grids */
+            box-sizing: border-box;
+        }
+    
+        .main-grid,
+        .number-grid {
+            text-align: center;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px; /* Adjust the gap between cells */
+            border: 1px solid #ddd; /* Light border */
+            border-radius: 8px; /* Rounded corners for the grids */
+            background-color: var(--secondary-bg); /* Use variable for background color */
+            padding: 15px; /* Add padding for a more spacious look */
+        }
+    
+        .identifier {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555; /* Dark gray text color for identifier */
+        }
+    
+        .cell,
+        .number {
+            border: 1px solid #ddd;
+            padding: 7px;
+            box-sizing: border-box;
+            background-color: var(--secondary-bg); /* Use variable for background color */
+            color: var(--primary-text); /* Use variable for text color */
+            border-radius: 8px; /* Rounded corners for the cells */
+        }
+    
+        .empty {
+            display: none; /* Hide empty cells */
+        }
+    
+        .alone {
+            margin: 5px; /* Add margin to cells alone in a row or column */
+        }
+    
+        /* Define light and dark mode colors */
+        :root {
+            --primary-bg-light: #fff;
+            --primary-text-light: #333;
+            --secondary-bg-light: #f9f9f9;
+            --primary-bg-dark: #333;
+            --primary-text-dark: #fff;
+            --secondary-bg-dark: #2c2c2c;
+        }
+    
+        /* Default to light mode */
+        body.light-mode {
+            --primary-bg: var(--primary-bg-light);
+            --primary-text: var(--primary-text-light);
+            --secondary-bg: var(--secondary-bg-light);
+        }
+    
+        /* Dark mode styles */
+        body.dark-mode {
+            --primary-bg: var(--primary-bg-dark);
+            --primary-text: var(--primary-text-dark);
+            --secondary-bg: var(--secondary-bg-dark);
+        }
+    
+        body.light-mode .dark-mode-btn {
+            background-color: #333;
+            color: #fff;
+        }
+    
+        body.dark-mode .dark-mode-btn {
+            background-color: #fff;
+            color: #333;
+        }
+    
+        /* Add styles for dark mode button */
+        .dark-mode-btn {
+
+            padding: 8px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s; /* Smooth transition for dark mode */
+        }
+    </style>
+    
+</head>
+<body class="light-mode">
+    
+    <div class="container">
+        
+        <div class="input-container">
+            <label for="encrypt">Encrypt:</label>
+            <br>
+            <textarea style="width: 450px; max-height: 30%; height: auto; padding: 8px; resize: vertical; white-space: pre-wrap; overflow-y: auto;" id="encrypt" oninput="updatePreview(this)"></textarea>
+        </div>
+        <div class="input-container">
+            <label for="decrypt">Decrypt:</label>
+            <br>
+            <textarea style="width: 450px; max-height: 30%; height: auto; padding: 8px; resize: vertical; white-space: pre-wrap; overflow-y: auto;" id="decrypt" oninput="updatePreview(this)"></textarea>
+        </div>
+        <button class="dark-mode-btn" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    </div>
+
+    <div class="grids-container">
+        <script>
+                    function toggleDarkMode() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+        }
+            document.addEventListener('DOMContentLoaded', function () {
+                createMainGrid('Grid 1', ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'], ['11', '21', '31', '12', '22', '32', '13', '23', '33']);
+                createMainGrid('Grid 2', ['J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R'], ['11', '21', '31', '12', '22', '32', '13', '23', '33']);
+                createMainGrid('Grid 3', ['S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'SPACE'], ['11', '21', '31', '12', '22', '32', '13', '23', '33']);
+                createMainGrid('Grid 4', ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'], ['11', '21', '31', '12', '22', '32', '13', '23', '33', '00']);
+            });
+    
+            function createMainGrid(identifier, contentArray, numbersArray) {
+                var mainGridContainer = document.createElement('div');
+                mainGridContainer.classList.add('main-grid-container');
+    
+                var mainGrids = document.createElement('div');
+                mainGrids.classList.add('main-grids');
+    
+                var mainGrid = document.createElement('div');
+                mainGrid.classList.add('main-grid');
+    
+                var identifierDiv = document.createElement('div');
+                identifierDiv.classList.add('identifier');
+                identifierDiv.textContent = identifier;
+    
+                mainGrids.appendChild(mainGrid);
+    
+                var rows = 4;
+                var cols = 3;
+    
+                // Create cells for the left grid
+                for (var i = 0; i < rows; i++) {
+                    for (var j = 0; j < cols; j++) {
+                        var cell = document.createElement('div');
+                        cell.classList.add('cell');
+                        cell.textContent = contentArray[i * cols + j];
+    
+                        if (!cell.textContent.trim()) {
+                            cell.classList.add('empty');
+                        }
+    
+                        mainGrid.appendChild(cell);
+                    }
+                }
+    
+                mainGrids.appendChild(mainGrid);
+    
+                // Create cells for the right grid
+                var numberGrid = createNumberGrid(numbersArray);
+                mainGrids.appendChild(numberGrid);
+    
+                mainGridContainer.appendChild(identifierDiv);
+                mainGridContainer.appendChild(mainGrids);
+    
+                // Append the grid container to the "grids-container"
+                document.querySelector('.grids-container').appendChild(mainGridContainer);
+    
+                // Calculate and set the width for each grid
+                var grids = document.querySelectorAll('.main-grid, .number-grid');
+                var maxWidth = Math.max.apply(null, Array.from(grids).map(grid => grid.clientWidth));
+    
+                grids.forEach(grid => {
+                    grid.style.width = maxWidth + 'px';
+                });
+    
+                // Add margin to cells alone in a row or column
+                var cells = mainGrid.querySelectorAll('.cell');
+                cells.forEach(cell => {
+                    var rowIndex = cell.parentElement.rowIndex;
+                    var colIndex = cell.cellIndex;
+    
+                    if (isCellAlone(cells, rowIndex, colIndex)) {
+                        cell.classList.add('alone');
+                    }
+                });
+            }
+    
+            function createNumberGrid(numbersArray) {
+                var numberGridContainer = document.createElement('div');
+                numberGridContainer.classList.add('number-grid');
+    
+                for (var i = 0; i < numbersArray.length; i++) {
+                    var numberCell = document.createElement('div');
+                    numberCell.classList.add('number');
+                    numberCell.textContent = numbersArray[i];
+                    numberGridContainer.appendChild(numberCell);
+                }
+    
+                return numberGridContainer;
+            }
+    
+            function isCellAlone(cells, rowIndex, colIndex) {
+                // Check if the cell is alone in its row
+                var rowCells = Array.from(cells).filter(cell => cell.parentElement.rowIndex === rowIndex && !cell.classList.contains('empty'));
+                if (rowCells.length === 1) {
+                    return true;
+                }
+    
+                // Check if the cell is alone in its column
+                var colCells = Array.from(cells).filter(cell => cell.cellIndex === colIndex && !cell.classList.contains('empty'));
+                if (colCells.length === 1) {
+                    return true;
+                }
+    
+                return false;
+            }
+        </script>
+    </div>
+    
+    </div>
+    <script>
+        function textToCode(text) {
+            text = text.toUpperCase();
+            let code = "";
+
+            for (let char of text) {
+                if (char.match(/[A-Z]/)) {
+                    let grid = Math.floor((char.charCodeAt(0) - 'A'.charCodeAt(0)) / 9);
+                    let row = (char.charCodeAt(0) - 'A'.charCodeAt(0)) % 3;
+                    let col = Math.floor((char.charCodeAt(0) - 'A'.charCodeAt(0)) % 9 / 3);
+                    code += `${grid + 1}${row + 1}${col + 1}`;
+                } else if (char.match(/[0-9]/)) {
+                    if (char === '0') {
+                        code += "400";
+                    } else {
+                        let grid = 4;
+                        let row = (parseInt(char) - 1) % 3;
+                        let col = Math.floor((parseInt(char) - 1) / 3);
+                        code += `${grid}${row + 1}${col + 1}`;
+                    }
+                } else if (char === ' ') {
+                    code += "333";
+                }
+            }
+
+            return code;
+        }
+
+        function codeToText(code) {
+            let text = "";
+
+            while (code.length > 0) {
+                if (code.length < 3) {
+                    throw new Error("Invalid code format");
+                }
+
+                if (code.startsWith("400")) {
+                    text += '0';
+                    code = code.slice(3);
+                } else {
+                    let grid = parseInt(code[0]);
+                    let row = parseInt(code[1]);
+                    let col = parseInt(code[2]);
+
+                    if (grid === 4) {
+                        let num = (col - 1) * 3 + row + 1;
+                        text += num.toString();
+                    } else if (grid >= 5 && grid <= 7) {
+                        let specialChars = '@#$%&()!"\'?;:,.\\/<>=-+*^[]{}~';
+                        text += specialChars[(grid - 5) * 9 + col - 1 + row * 3];
+                    } else {
+                        let charNum = (grid - 1) * 9 + (col - 1) * 3 + (row - 1);
+                        if (charNum < 26) {
+                            text += String.fromCharCode('A'.charCodeAt(0) + charNum);
+                        } else if (charNum === 26) {
+                            text += ' ';
+                        } else {
+                            throw new Error("Invalid code");
+                        }
+                    }
+
+                    code = code.slice(3);
+                }
+            }
+
+            return text;
+        }
+
+        function updatePreview(currentBox) {
+            var currentText = currentBox.value;
+
+            if (currentBox.id === 'encrypt') {
+                var decryptEntry = document.getElementById('decrypt');
+                decryptEntry.value = textToCode(currentText);
+            } else if (currentBox.id === 'decrypt') {
+                var encryptEntry = document.getElementById('encrypt');
+                encryptEntry.value = codeToText(currentText);
+            }
+        }
+    </script>
+</body>
+
+</html>
